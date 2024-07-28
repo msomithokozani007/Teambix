@@ -1,32 +1,41 @@
-<?php
-    session_start();
-    include('assets/inc/config.php');
-    //date_default_timezone_set('Africa /Nairobi');
-    include('assets/inc/checklogin.php');
-    check_login();
-    $aid=$_SESSION['emp_id'];
-
-            if(isset($_POST['Update_Password']))
-
-    {
-           
-            $aid=$_SESSION['emp_id'];
-            $emp_pwd=sha1(md5($_POST['emp_pwd']));
-            $query="update orrs_employee set emp_pwd = ? where emp_id=?";
-            $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('si', $emp_pwd, $aid);
-            $stmt->execute();
-                if($stmt)
-                {
-                    $succ1 = "Password  Updated";
-                }
-                else 
-                {
-                    $err = "Please Try Again Later";
-                }
-            #echo"<script>alert('Your Profile Has Been Updated Successfully');</script>";
-            }
+ <!--Server side code to handle passenger sign up-->
+ <?php
+	session_start();
+	include('assets/inc/config.php');
+		if(isset($_POST['Create_Profile']))
+		{
+            $pass_id = $_GET['pass_id'];            
+			$pass_fname=$_POST['pass_fname'];
+			#$mname=$_POST['mname'];
+			$pass_lname=$_POST['pass_lname'];
+			$pass_phone=$_POST['pass_phone'];
+			$pass_addr=$_POST['pass_addr'];
+			$pass_uname=$_POST['pass_uname'];
+			$pass_email=$_POST['pass_email'];
+			//$pass_pwd=sha1(md5($_POST['pass_pwd']));
+            //sql to insert captured values
+			$query="update orrs_passenger  set  pass_fname=?, pass_lname=?, pass_phone=?, pass_addr=?, pass_uname=?, pass_email=? where pass_id = ?";
+			$stmt = $mysqli->prepare($query);
+			$rc=$stmt->bind_param('ssssssi',$pass_fname, $pass_lname, $pass_phone, $pass_addr, $pass_uname, $pass_email, $pass_id);
+			$stmt->execute();
+			/*
+			*Use Sweet Alerts Instead Of This Fucked Up Javascript Alerts
+			*echo"<script>alert('Successfully Created Account Proceed To Log In ');</script>";
+			*/ 
+			//declare a varible which will be passed to alert function
+			if($stmt)
+			{
+				$success = "Patient Account Updated";
+			}
+			else {
+				$err = "Please Try Again Or Try Later";
+			}
+			
+			
+		}
 ?>
+<!--End Server Side-->
+
 <!DOCTYPE html>
 <html lang="en">
 <!--Head-->
@@ -43,21 +52,21 @@
       <!--End Sidebar-->
       <div class="be-content">
         <div class="page-head">
-          <h2 class="page-head-title">Profile </h2>
+          <h2 class="page-head-title">View Patient</h2>
           <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb page-head-nav">
               <li class="breadcrumb-item"><a href="pass-dashboard.php">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="#">Profile</a></li>
-              <li class="breadcrumb-item active">Change Password | Profile Photo </li>
+              <li class="breadcrumb-item"><a href="#">Passenger</a></li>
+              <li class="breadcrumb-item active">Manage</li>
             </ol>
           </nav>
         </div>
-        <?php if(isset($succ1)) {?>
+            <?php if(isset($success)) {?>
                                 <!--This code for injecting an alert-->
                 <script>
                             setTimeout(function () 
                             { 
-                                swal("Success!","<?php echo $succ1;?>!","success");
+                                swal("Success!","<?php echo $succ;?>!","success");
                             },
                                 100);
                 </script>
@@ -75,9 +84,11 @@
 
         <?php } ?>
         <div class="main-content container-fluid">
-        <?php
-            $aid=$_SESSION['emp_id'];
-            $ret="select * from orrs_employee where emp_id=?";
+       
+       <!--Train Details forms-->
+       <?php
+            $aid=$_GET['pass_id'];
+            $ret="select * from orrs_passenger where pass_id=?";
             $stmt= $mysqli->prepare($ret) ;
             $stmt->bind_param('i',$aid);
             $stmt->execute() ;//ok
@@ -85,49 +96,43 @@
             //$cnt=1;
             while($row=$res->fetch_object())
         {
-        ?>     
+        ?>
+          <div class="row">
             <div class="col-md-12">
               <div class="card card-border-color card-border-color-success">
-                <div class="card-header card-header-divider">Change Password<span class="card-subtitle">Fill All Details</span></div>
+                <div class="card-header card-header-divider"> Single Patient Details<span class="card-subtitle"></span></div>
                 <div class="card-body">
-                  <form method ="POST" >
-                    <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Old Password</label>
-                      <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="" id="inputText3" type="password">
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">New Password</label>
-                      <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_pwd"  id="inputText3" type="password">
-                      </div>
-                    </div>
-                    <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Confirm New Password</label>
-                      <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name=""  id="inputText3" type="password">
-                      </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <p class="text-right">
-                          <input class="btn btn-space btn-success" value ="Change Password" name = "Update_Password" type="submit">
-                          <button class="btn btn-space btn-danger">Cancel</button>
-                        </p>
-                      </div>
-                    </div>
-                  </form>
+                <table class="table table-striped table-bordered table-hover table-fw-widget" id="table1">
+                <thead class="thead-dark">
+                      <tr>
+                        <th>Name</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                        <th>Email</th>
+                      </tr> 
+                    </thead>
+                    <tbody>
+                    <tr class="odd gradeX even gradeC odd gradeA even gradeA ">
+                        <td><?php echo $row->pass_fname;?><?php echo $row->pass_lname;?></td>
+                        <td><?php echo $row->pass_phone;?></td>
+                        <td><?php echo $row->pass_addr;?></td>
+                        <td class="center"><?php echo $row->pass_email;?></td>
+                                             
+                      </tr>
+
+                      <?php }?>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-        </div>
        
-        <?php }?>
         
-      </div>
-      <!--footer-->
-      <?php include('assets/inc/footer.php');?>
+        </div>
+        <!--footer-->
+        <?php include('assets/inc/footer.php');?>
         <!--EndFooter-->
+      </div>
 
     </div>
     <script src="assets/lib/jquery/jquery.min.js" type="text/javascript"></script>

@@ -5,27 +5,26 @@
     include('assets/inc/checklogin.php');
     check_login();
     $aid=$_SESSION['emp_id'];
-    if(isset($_POST['Update_Profile']))
+    if(isset($_POST['update_train']))
     {
-
-            $emp_fname=$_POST['emp_fname'];
-            $emp_lname = $_POST['emp_lname'];
-            $emp_phone=$_POST['emp_phone'];
-            $emp_addr=$_POST['emp_addr'];
-            $emp_email=$_POST['emp_email'];
-            $emp_uname=$_POST['emp_uname'];
-            //$pass_bday=$_POST['pass_bday'];
-            //$pass_ocupation=$_POST['pass_occupation'];
-            //$pass_bio=($_POST['pass_bio']);
-            //$passwordconf=md5($_POST['passwordconf']);
-            //$date = date('d-m-Y h:i:s', time());
-            $query="update  orrs_employee set emp_fname = ?, emp_lname = ?, emp_phone = ?, emp_addr = ?, emp_email = ?, emp_uname = ? where emp_id=?";
+            $id = $_GET['id'];
+            $name = $_POST['name'];
+            $route = $_POST['route'];
+            $current = $_POST['current'];
+            $destination = $_POST['destination'];
+            $time = $_POST['time'];
+            $number = $_POST['number'];
+            $fare = $_POST['fare'];
+            $passengers = $_POST['passengers'];
+            //sql querry to post the entered information
+            $query="update orrs_train set name= ?, route = ?, current = ?, destination = ?, time = ?, number = ?, fare = ?, passengers = ? where id = ?";
             $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('ssssssi', $emp_fname, $emp_lname, $emp_phone, $emp_addr, $emp_email, $emp_uname, $aid);
+            //bind this parameters
+            $rc=$stmt->bind_param('ssssssssi', $name, $route, $current, $destination, $time, $number, $fare, $passengers, $id);
             $stmt->execute();
                 if($stmt)
                 {
-                    $succ = "Your Paramedic Profile  Has Been Updated";
+                    $succ = "Ambulance Updated";
                 }
                 else 
                 {
@@ -50,12 +49,12 @@
       <!--End Sidebar-->
       <div class="be-content">
         <div class="page-head">
-          <h2 class="page-head-title">Profile </h2>
+          <h2 class="page-head-title">Manage Ambulance</h2>
           <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb page-head-nav">
               <li class="breadcrumb-item"><a href="pass-dashboard.php">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="#">Profile</a></li>
-              <li class="breadcrumb-item active">Update Profile</li>
+              <li class="breadcrumb-item"><a href="#">Ambulance</a></li>
+              <li class="breadcrumb-item active">Manage Ambulance</li>
             </ol>
           </nav>
         </div>
@@ -82,9 +81,10 @@
 
         <?php } ?>
         <div class="main-content container-fluid">
-        <?php
-            $aid=$_SESSION['emp_id'];
-            $ret="select * from orrs_employee where emp_id=?";
+       <!--Train Details forms-->
+       <?php
+            $aid=$_GET['id'];
+            $ret="select * from orrs_train where id=?";
             $stmt= $mysqli->prepare($ret) ;
             $stmt->bind_param('i',$aid);
             $stmt->execute() ;//ok
@@ -96,49 +96,61 @@
           <div class="row">
             <div class="col-md-12">
               <div class="card card-border-color card-border-color-success">
-                <div class="card-header card-header-divider">Update Your Profile<span class="card-subtitle">Fill All Details</span></div>
+                <div class="card-header card-header-divider">Update Ambulance<span class="card-subtitle"> Please Fill All Details</span></div>
                 <div class="card-body">
                   <form method ="POST">
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">First Name</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Ambulance Name</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_fname" value="<?php echo $row->emp_fname;?>" id="inputText3" type="text">
+                        <input class="form-control" name="name" value ="<?php echo $row->name;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Last Name</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Ambulance Number</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_lname" value="<?php echo $row->emp_lname;?>" id="inputText3" type="text">
+                        <input class="form-control" name="number" value = "<?php echo $row->number;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Contact Number</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Ambulance Route</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_phone" value="<?php echo $row->emp_phone;?>" id="inputText3" type="text">
+                        <input class="form-control" name="route"  value ="<?php echo $row->route;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Address</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Departure</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_addr" value="<?php echo $row->emp_addr;?>" id="inputText3" type="text">
+                        <input class="form-control" name="current" value ="<?php echo $row->current;?>"  id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Email</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Arrival</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_email" value="<?php echo $row->emp_email;?>" id="inputText3" type="text">
+                        <input class="form-control" name="destination" value ="<?php echo $row->destination;?>"  id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Username</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Departure Time</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="emp_uname" value="<?php echo $row->emp_uname;?>" id="inputText3" type="text">
+                        <input class="form-control" name="time" value = "<?php echo $row->time;?>" id="inputText3" type="text">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Number of patient's</label>
+                      <div class="col-12 col-sm-8 col-lg-6">
+                        <input class="form-control" name="passengers" value = "<?php echo $row->passengers;?>"  id="inputText3" type="text">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Ambulance Cost</label>
+                      <div class="col-12 col-sm-8 col-lg-6">
+                        <input class="form-control" name="fare" value = "<?php echo $row->fare;?>"  id="inputText3" type="text">
                       </div>
                     </div>
                     
                     <div class="col-sm-6">
                         <p class="text-right">
-                          <input class="btn btn-space btn-success" value ="Update Profile" name = "Update_Profile" type="submit">
+                          <input class="btn btn-space btn-success" value ="Update Ambulance" name = "update_train" type="submit">
                           <button class="btn btn-space btn-danger">Cancel</button>
                         </p>
                       </div>
@@ -148,6 +160,7 @@
               </div>
             </div>
        
+        <!--End Train Instance-->
         <?php }?>
         
         </div>
