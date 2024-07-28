@@ -5,9 +5,11 @@
     include('assets/inc/checklogin.php');
     check_login();
     $aid=$_SESSION['pass_id'];
-    if(isset($_POST['Update_Profile']))
+    if(isset($_POST['Book_Train']))
     {
 
+            /*
+            *We have already captured this passenger details....so no need of getting them again.     
             $pass_fname=$_POST['pass_fname'];
             $pass_lname = $_POST['pass_lname'];
             $pass_phone=$_POST['pass_phone'];
@@ -19,18 +21,26 @@
             $pass_bio=($_POST['pass_bio']);
             //$passwordconf=md5($_POST['passwordconf']);
             //$date = date('d-m-Y h:i:s', time());
-            $query="update  orrs_passenger set pass_fname = ?, pass_lname = ?, pass_phone = ?, pass_addr = ?, pass_email = ?, pass_uname = ?, pass_bday = ?, pass_bio = ? where pass_id=?";
-            $stmt = $mysqli->prepare($query);
-            $rc=$stmt->bind_param('ssssssssi', $pass_fname, $pass_lname, $pass_phone, $pass_addr, $pass_email, $pass_uname, $pass_bday, $pass_bio, $aid);
+            */
+            $pass_train_number = $_POST['pass_train_number'];
+            $pass_train_name = $_POST['pass_train_name'];
+            $pass_dep_station = $_POST['pass_dep_station'];
+            $pass_dep_time = $_POST['pass_dep_time'];
+            $pass_arr_station = $_POST['pass_arr_station'];
+            $pass_train_fare = $_POST['pass_train_fare'];
+            //sql file to update the table of passengers with the new captured information
+            $query="update  orrs_passenger set pass_train_number = ?, pass_train_name = ?, pass_dep_station = ?, pass_dep_time = ?,  pass_arr_station = ?, pass_train_fare = ? where pass_id=?";
+            $stmt = $mysqli->prepare($query); //prepare sql and bind it later
+            $rc=$stmt->bind_param('ssssssi', $pass_train_number, $pass_train_name, $pass_dep_station, $pass_dep_time, $pass_arr_station, $pass_train_fare, $aid);
             $stmt->execute();
-                if($stmt)
-                {
-                    $succ = "Your Profile Has Been Updated";
-                }
-                else 
-                {
-                    $err = "Please Try Again Later";
-                }
+            if($stmt)
+            {
+                $succ = "Reserved Train PLease Proceed To Check Out";
+            }
+            else 
+            {
+                $err = "Please Try Again Later";
+            }
             #echo"<script>alert('Your Profile Has Been Updated Successfully');</script>";
             }
 ?>
@@ -50,12 +60,12 @@
       <!--End Sidebar-->
       <div class="be-content">
         <div class="page-head">
-          <h2 class="page-head-title">Profile </h2>
+          <h2 class="page-head-title">Book Ambulance </h2>
           <nav aria-label="breadcrumb" role="navigation">
             <ol class="breadcrumb page-head-nav">
               <li class="breadcrumb-item"><a href="pass-dashboard.php">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="#">Profile</a></li>
-              <li class="breadcrumb-item active">Update Profile</li>
+              <li class="breadcrumb-item"><a href="#">Book Ambulance</a></li>
+              <li class="breadcrumb-item active">Reserve Bad</li>
             </ol>
           </nav>
         </div>
@@ -96,64 +106,92 @@
           <div class="row">
             <div class="col-md-12">
               <div class="card card-border-color card-border-color-success">
-                <div class="card-header card-header-divider">Update Your Profile<span class="card-subtitle">Fill All Details</span></div>
+                <div class="card-header card-header-divider"><span class="card-subtitle">Fill All Details</span></div>
                 <div class="card-body">
                   <form method ="POST">
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">First Name</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> First Name</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_fname" value="<?php echo $row->pass_fname;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_fname" value="<?php echo $row->pass_fname;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Last Name</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_lname" value="<?php echo $row->pass_lname;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_lname" value="<?php echo $row->pass_lname;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Phone Number</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_phone" value="<?php echo $row->pass_phone;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_phone" value="<?php echo $row->pass_phone;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
                       <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Address</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_addr" value="<?php echo $row->pass_addr;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_addr" value="<?php echo $row->pass_addr;?>" id="inputText3" type="text">
+                      </div>
+                    </div>
+
+                    <!--Lets get the details of one single train using its Train Id 
+                    and pass it to this user instance-->
+                    <?php
+                        $id=$_GET['id'];
+                        $ret="select * from orrs_train where id=?";
+                        $stmt= $mysqli->prepare($ret) ;
+                        $stmt->bind_param('i',$id);
+                        $stmt->execute() ;//ok
+                        $res=$stmt->get_result();
+                        //$cnt=1;
+                        while($row=$res->fetch_object())
+                    {
+                    ?>
+                    <div class="form-group row">
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Ambulance Number</label>
+                      <div class="col-12 col-sm-8 col-lg-6">
+                        <input class="form-control" readonly name="pass_train_number" value="<?php echo $row->number;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Email</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Ambulance Name</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_email" value="<?php echo $row->pass_email;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_train_name" value="<?php echo $row->name;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Username</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Departure</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_uname" value="<?php echo $row->pass_uname;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_dep_station" value="<?php echo $row->current;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Birthday</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Arrival </label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <input class="form-control" name="pass_bday" value="<?php echo $row->pass_bday;?>" id="inputText3" type="text">
+                        <input class="form-control" readonly name="pass_arr_station" value="<?php echo $row->destination;?>" id="inputText3" type="text">
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Bio</label>
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3"> Departure Time</label>
                       <div class="col-12 col-sm-8 col-lg-6">
-                        <textarea class="form-control" name="pass_bio"  id="inputText3" type="text"><?php echo $row->pass_bio;?></textarea>
+                        <input class="form-control" readonly name="pass_dep_time" value="<?php echo $row->time;?>" id="inputText3" type="text">
                       </div>
                     </div>
+                    <div class="form-group row">
+                      <label class="col-12 col-sm-3 col-form-label text-sm-right" for="inputText3">Ambulance Cost</label>
+                      <div class="col-12 col-sm-8 col-lg-6">
+                        <input class="form-control" readonly name="pass_train_fare" value="<?php echo $row->fare;?>"  id="inputText3" type="text">
+                      </div>
+                    </div>
+                    <!--End TRain  isntance-->
+                    <?php }?>
+
                     <div class="col-sm-6">
                         <p class="text-right">
-                          <input class="btn btn-space btn-success" value ="Update Profile" name = "Update_Profile" type="submit">
-                          <button class="btn btn-space btn-secondary">Cancel</button>
+                          <input class="btn btn-space btn-outline-success" value ="Book Ambulance" name = "Book_Train" type="submit">
+                          <button class="btn btn-space btn-outline-danger">Cancel</button>
                         </p>
-                      </div>
                     </div>
                   </form>
                 </div>
